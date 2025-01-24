@@ -75,6 +75,7 @@
       border-color: #444;
       color: #fff;
     }
+    /* Si coincide dark-mode con leader/dependent, prioriza el modo oscuro */
     .dark-mode.bg-leader,
     .dark-mode.bg-dependent {
       background-color: #121212 !important;
@@ -92,7 +93,7 @@
     .header img {
       height: auto;
       margin-bottom: 10px;
-      /* Si necesitas ajustarlo un poco, podrías usar width:auto, o solo quitar max-width:100%. */
+      /* Si necesitas ajustar el tamaño, podrías usar width:auto, o max-width: 100% de manera opcional. */
     }
     .header h1 {
       color: #fff;
@@ -165,7 +166,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 9999; /* para que esté encima del menú */
+      z-index: 9999; /* Para que quede por encima del menú */
     }
 
     /* ================== ÁREA DE RESPUESTA ================== */
@@ -202,20 +203,20 @@
       padding: 10px;
       margin-bottom: 10px;
       border-radius: 4px;
-      /* El color de fondo ahora se asignará dinámicamente desde JS */
+      /* El color de fondo se asignará dinámicamente desde JS */
     }
 
     /* ================== MENÚ LATERAL (ACORDEÓN) PARA LÍDER ================== */
     .side-menu {
       position: fixed;
-      top: 150px;
+      top: 150px; /* Ajusta la posición vertical según tu preferencia */
       left: 20px;
       width: 240px;
       background-color: #f0f0f0;
       border: 1px solid #ccc;
       border-radius: 4px;
       padding: 15px;
-      display: none; /* Oculto por defecto */
+      display: none; /* Oculto por defecto, se mostrará cuando sea líder */
       z-index: 999; 
     }
 
@@ -316,8 +317,10 @@
             <li>Teléfono (si está incorrecto o en blanco).</li>
             <li>Relación de parentesco (si está incorrecta o en blanco).</li>
           </ul>
-          <p><strong>Nota:</strong> El email es el usuario para entrar a Open Key, por lo tanto, 
-          aseguráte de que todos los dependientes tengan un email único.</p>
+          <p>
+            <strong>Nota:</strong> El email es el usuario para entrar a Open Key, por lo tanto, 
+            aseguráte de que todos los dependientes tengan un email único.
+          </p>
         </div>
       </div>
     </div>
@@ -539,7 +542,7 @@
         // Mostramos el menú lateral
         sideMenu.style.display = 'block';
 
-        // Muestra cartel parpadeante “Sos Líder de Grupo” (15% más grande)
+        // Muestra cartel parpadeante “Sos Líder de Grupo”
         respuestaHTML += `<div class="blink">Sos Líder de Grupo</div><br>`;
 
         // Datos del líder
