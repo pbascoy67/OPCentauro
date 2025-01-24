@@ -108,7 +108,7 @@
       align-items: center;
       margin-bottom: 20px;
     }
-    /* Dejar el logo con su tamaño original (si la imagen es demasiado grande, podrías usar max-width: 100% opcionalmente) */
+    /* Dejar el logo con su tamaño original (si la imagen es muy grande, se puede usar max-width: 100% opcionalmente) */
     .header img {
       height: auto;
       margin-bottom: 10px;
@@ -238,7 +238,7 @@
       padding: 15px;
       display: none; /* Oculto por defecto, se mostrará cuando sea líder */
       z-index: 999; 
-      max-height: 60vh; /* Para poder hacer scroll si es muy alto */
+      max-height: 60vh; /* Para poder hacer scroll si el contenido es muy largo */
       overflow-y: auto;
     }
 
@@ -254,7 +254,7 @@
     .accordion-header {
       width: 100%;
       text-align: left;
-      background-color: #09406e; /* Un azul un poco más oscuro para cada encabezado */
+      background-color: #09406e; /* Azul más oscuro para el encabezado del acordeón */
       color: #fff;
       border: none;
       border-radius: 4px;
@@ -659,7 +659,7 @@
       headers.forEach(header => {
         header.addEventListener('click', () => {
           const content = header.nextElementSibling;
-          // Alternar display
+          // Alternar el display
           if (content.style.display === 'block') {
             content.style.display = 'none';
           } else {
