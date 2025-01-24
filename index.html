@@ -12,14 +12,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <style>
-    /* ------ RESET BÁSICO ------ */
+    /* ================== RESET BÁSICO ================== */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
-    /* ------ ESTILOS DE PÁGINA ------ */
+    /* ================== ESTILOS GENERALES ================== */
     body {
       font-family: 'Roboto', sans-serif;
       background: linear-gradient(135deg, #79F1A4 0%, #0E5CAD 100%);
@@ -30,17 +30,77 @@
       justify-content: flex-start;
       padding: 20px;
       color: #333;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    h1 {
+    /* Clases para cambiar fondo según tipo de usuario */
+    .bg-leader {
+      background-color: #b3e5fc !important; /* Celeste claro */
+      background-image: none !important;
+    }
+    .bg-dependent {
+      background-color: #c8e6c9 !important; /* Verde claro */
+      background-image: none !important;
+    }
+
+    /* ------------------ MODO OSCURO ------------------ */
+    .dark-mode {
+      background-color: #121212 !important; /* Fondo oscuro */
+      background-image: none !important;
+      color: #f1f1f1;
+    }
+
+    .dark-mode .container {
+      background-color: #1f1f1f;
       color: #fff;
-      margin: 30px 0 20px;
+    }
+
+    .dark-mode input[type="text"] {
+      background-color: #2c2c2c;
+      color: #fff;
+      border: 1px solid #444;
+    }
+
+    .dark-mode button {
+      background-color: #444;
+      color: #fff;
+    }
+    .dark-mode button:hover {
+      background-color: #666;
+    }
+
+    .dark-mode .output {
+      background-color: #2c2c2c;
+      border: 1px solid #444;
+    }
+
+    /* Si coincide dark-mode con leader/dependent, prioriza el modo oscuro */
+    .dark-mode.bg-leader,
+    .dark-mode.bg-dependent {
+      background-color: #121212 !important;
+    }
+
+    /* ================== ENCABEZADO CON LOGO ================== */
+    .header {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .header img {
+      width: 120px; /* Ajustar tamaño del logo */
+      height: auto;
+      margin-bottom: 10px;
+    }
+    .header h1 {
+      color: #fff;
       text-align: center;
       font-size: 2rem;
       text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
     }
 
-    /* ------ CONTENEDOR PRINCIPAL ------ */
+    /* ================== CONTENEDOR PRINCIPAL ================== */
     .container {
       background-color: #fff;
       max-width: 700px;
@@ -49,23 +109,10 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.2);
       padding: 20px;
       margin-bottom: 20px;
-      position: relative; /* para ubicar el logo de forma absoluta si se quiere */
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    /* ------ LOGO ------ */
-    .logo-container {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      width: 120px; /* Ajusta el tamaño según necesites */
-    }
-    .logo-container img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    /* ------ SECCIONES ------ */
+    /* ================== SECCIONES ================== */
     .section {
       margin-bottom: 1.5rem;
     }
@@ -75,7 +122,7 @@
       margin-bottom: 0.5rem;
     }
 
-    /* ------ INPUTS ------ */
+    /* ================== INPUTS ================== */
     input[type="text"] {
       width: 100%;
       padding: 8px;
@@ -83,11 +130,16 @@
       border-radius: 4px;
       outline: none;
       font-size: 1rem;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    /* ------ BOTÓN ------ */
-    button {
+    /* ================== BOTONES ================== */
+    .btn-row {
+      display: flex;
+      gap: 10px;
       margin-top: 10px;
+    }
+    button {
       padding: 10px 20px;
       background-color: #0E5CAD;
       border: none;
@@ -102,7 +154,15 @@
       background-color: #09406e;
     }
 
-    /* ------ CUADRO DE RESPUESTA ------ */
+    /* Botón con un ícono (modo oscuro) */
+    #toggleDarkMode {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    /* ================== ÁREA DE RESPUESTA ================== */
     .output {
       margin-top: 1rem;
       background-color: #f9f9f9;
@@ -112,31 +172,30 @@
       min-height: 80px;
       line-height: 1.6;
       font-size: 0.95rem;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    /* ------ TEXTO PARPADEANTE ------ */
+    /* ================== TEXTO PARPADEANTE ================== */
     .blink {
-      color: #ff0000; 
+      color: #ff0000;
       font-weight: 700;
       animation: blink 1s infinite;
       margin-bottom: 10px;
       display: inline-block;
     }
-
     @keyframes blink {
       50% {
         opacity: 0;
       }
     }
 
-    /* ------ RESPONSIVE ------ */
+    /* ================== RESPONSIVE ================== */
     @media (max-width: 600px) {
       .container {
         padding: 15px;
       }
-      .logo-container {
-        position: static;
-        margin-bottom: 15px;
+      .btn-row {
+        flex-direction: column;
       }
       button {
         width: 100%;
@@ -145,269 +204,281 @@
   </style>
 </head>
 <body>
-
-<h1>Datos Actuales Open Key Residentes Barrio El Centauro</h1>
-
-<div class="container">
-  <!-- Logo del barrio a la derecha -->
-  <div class="logo-container">
-    <img src="./ElCentauro.jpg" alt="Logo de El Centauro">
+  <!-- Encabezado con Logo y Título -->
+  <div class="header">
+    <img src="./ElCentauro.png" alt="Logo de El Centauro">
+    <h1>Datos Actuales Open Key Residentes Barrio El Centauro</h1>
   </div>
 
-  <!-- Sección de consulta por número de documento -->
-  <div class="section">
-    <label for="consulta">Coloca un número de documento:</label>
-    <input type="text" id="consulta" placeholder="Coloca un número de documento">
-    <button id="btnConsultar">Consultar</button>
+  <div class="container">
+    <!-- Sección de consulta por número de documento -->
+    <div class="section">
+      <label for="consulta">Coloca un número de documento:</label>
+      <input type="text" id="consulta" placeholder="Coloca un número de documento">
+
+      <!-- Botones: consultar y modo oscuro -->
+      <div class="btn-row">
+        <button id="btnConsultar">Consultar</button>
+        <button id="toggleDarkMode">🌙</button>
+      </div>
+    </div>
+
+    <!-- Área donde se muestran las respuestas -->
+    <div class="output" id="respuesta"></div>
   </div>
 
-  <!-- Área donde se muestran las respuestas -->
-  <div class="output" id="respuesta"></div>
-</div>
+  <script>
+    /*
+      ---------------------------------------------------------------------------------------
+      Columnas en el Excel (en este orden):
+      A: Documento
+      B: Nombre y apellido
+      C: Email
+      D: Grupoprimario
+      E: App
+      F: Resp
 
-<script>
-  /*
-    ---------------------------------------------------------------------------------------
-    Columnas en el Excel (en este orden):
-    A: Documento
-    B: Nombre y apellido
-    C: Email
-    D: Grupoprimario
-    E: App
-    F: Resp
+      REGLAS DE RESPUESTA (resumidas):
+      1. Solo responder si hay un número en la consulta. De lo contrario:
+         "Solo estoy entrenado para contestar si colocas un número de documento."
+      2. Buscar en la base el número de Documento.
+         - Si no está: "El documento no existe en la base de datos de El Centauro."
+      3. Si "Resp" en blanco => Dependiente
+         - Mostrar: Documento, Nombre y Apellido, Email (o "No tienes email registrado."), Lote Nro. (2 dígitos de Grupoprimario)
+         - Mostrar líder de grupo (Resp = "SI" con mismo Grupoprimario)
+         - Si "App"="No", agregar "Nunca ha entrado aún a la app de Open Key."
+         - (FONDO Verde claro)
+      4. Si "Resp"="SI" => Líder
+         - Muestra los mismos datos + texto "Vos como Líder de grupo ..."
+         - Listar dependientes (mismo Grupoprimario, Resp en blanco).
+           - Para cada uno, mostrar su info + "Nunca ha entrado ..." si "App"="No"
+         - Mostrar cartel parpadeante: "Sos Líder de Grupo"
+         - (FONDO Celeste claro)
+      ---------------------------------------------------------------------------------------
+    */
 
-    REGLAS DE RESPUESTA (resumidas):
-    1. Solo responder si hay un número en la consulta. De lo contrario:
-       "Solo estoy entrenado para contestar si colocas un número de documento."
-    2. Buscar en la base el número de Documento.
-       - Si no está: "El documento no existe en la base de datos de El Centauro."
-    3. Si "Resp" en blanco => Dependiente
-       - Mostrar: Documento, Nombre y Apellido, Email (o "No tienes email registrado."), Lote Nro. (2 dígitos de Grupoprimario)
-       - Mostrar líder de grupo (Resp = "SI" con mismo Grupoprimario)
-       - Si "App"="No", agregar "Nunca ha entrado aún a la app de Open Key."
-    4. Si "Resp"="SI" => Líder
-       - Muestra los mismos datos + texto "Vos como Líder de grupo ..."
-       - Listar dependientes (mismo Grupoprimario, Resp en blanco).
-         - Para cada uno, mostrar su info + "Nunca ha entrado ..." si "App"="No"
-       - Mostrar cartel parpadeante: "Sos Líder de Grupo"
-    ---------------------------------------------------------------------------------------
-  */
+    let datosExcel = []; // Se almacenan los datos del Excel
+    const excelUrl = './data.xlsx'; // Ajustar a la ruta real en tu repositorio
 
-  let datosExcel = []; // Se almacenan los datos del Excel
+    // Al cargar la página, leemos el Excel en segundo plano
+    window.addEventListener('DOMContentLoaded', () => {
+      cargarExcelFijo();
+    });
 
-  // URL del archivo Excel (ajusta a tu ruta real en GitHub)
-  const excelUrl = './data.xlsx'; 
+    function cargarExcelFijo() {
+      fetch(excelUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`No se pudo acceder al archivo Excel. Código: ${response.status}`);
+          }
+          return response.arrayBuffer();
+        })
+        .then(data => {
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
 
-  // Al cargar la página, intentamos leer el Excel en segundo plano
-  window.addEventListener('DOMContentLoaded', () => {
-    cargarExcelFijo();
-  });
-
-  function cargarExcelFijo() {
-    fetch(excelUrl)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`No se pudo acceder al archivo Excel. Código: ${response.status}`);
-        }
-        return response.arrayBuffer();
-      })
-      .then(data => {
-        const workbook = XLSX.read(data, { type: 'array' });
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-
-        // Convertimos la hoja a un array bidimensional
-        datosExcel = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-        console.log("Archivo Excel cargado exitosamente.");
-      })
-      .catch(error => {
-        console.error("Error al cargar el Excel fijo:", error);
-      });
-  }
-
-  // Botón de consulta
-  document.getElementById('btnConsultar').addEventListener('click', function() {
-    const consulta = document.getElementById('consulta').value.trim();
-    const respuesta = document.getElementById('respuesta');
-
-    // Limpiar la respuesta previa
-    respuesta.innerHTML = "";
-
-    // Verificar si hay datos cargados
-    if (!datosExcel || datosExcel.length === 0) {
-      respuesta.innerText = "No hay datos cargados. Revisa si el archivo Excel está correctamente disponible en el repositorio.";
-      return;
+          // Convertimos la hoja a un array bidimensional
+          datosExcel = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          console.log("Archivo Excel cargado exitosamente.");
+        })
+        .catch(error => {
+          console.error("Error al cargar el Excel fijo:", error);
+        });
     }
 
-    // Extraer el número de documento de la consulta (uno o más dígitos)
-    const regexDoc = /(\d+)/;
-    const match = consulta.match(regexDoc);
-    if (!match) {
-      respuesta.innerText = "Solo estoy entrenado para contestar si colocas un número de documento.";
-      return;
-    }
-    const numeroDocumento = match[0];
+    // Botón de consulta
+    document.getElementById('btnConsultar').addEventListener('click', function() {
+      const consulta = document.getElementById('consulta').value.trim();
+      const respuesta = document.getElementById('respuesta');
 
-    // Identificar columnas en la primera fila
-    const headers = datosExcel[0].map(h => (h || '').toString().trim().toLowerCase());
+      // Limpiar la respuesta previa
+      respuesta.innerHTML = "";
 
-    const colDoc   = headers.indexOf("documento");
-    const colNom   = headers.indexOf("nombre y apellido");
-    const colEmail = headers.indexOf("email");
-    const colGrupo = headers.indexOf("grupoprimario");
-    const colApp   = headers.indexOf("app");
-    const colResp  = headers.indexOf("resp");
+      // Quitamos clases anteriores de fondo que indiquen líder/dependiente
+      document.body.classList.remove('bg-leader', 'bg-dependent');
 
-    if ([colDoc, colNom, colEmail, colGrupo, colApp, colResp].includes(-1)) {
-      respuesta.innerText = "El archivo Excel no contiene las columnas requeridas (Documento, Nombre y apellido, Email, Grupoprimario, App, Resp).";
-      return;
-    }
-
-    // Buscar la fila con el documento
-    let filaEncontrada = null;
-    for (let i = 1; i < datosExcel.length; i++) {
-      const fila = datosExcel[i];
-      if (!fila[colDoc]) continue;
-      const valorDoc = fila[colDoc].toString().trim();
-      if (valorDoc === numeroDocumento) {
-        filaEncontrada = fila;
-        break;
+      // Verificar si hay datos cargados
+      if (!datosExcel || datosExcel.length === 0) {
+        respuesta.innerText = "No hay datos cargados. Revisa si el archivo Excel está correctamente disponible en el repositorio.";
+        return;
       }
-    }
 
-    // Si no se encontró, avisar
-    if (!filaEncontrada) {
-      respuesta.innerText = "El documento no existe en la base de datos de El Centauro.";
-      return;
-    }
-
-    // Extraer valores de la fila
-    const valDoc    = filaEncontrada[colDoc]   ? filaEncontrada[colDoc].toString().trim()   : "";
-    const valNom    = filaEncontrada[colNom]   ? filaEncontrada[colNom].toString().trim()   : "";
-    const valEmail  = filaEncontrada[colEmail] ? filaEncontrada[colEmail].toString().trim() : "";
-    const valGrupo  = filaEncontrada[colGrupo] ? filaEncontrada[colGrupo].toString().trim() : "";
-    const valApp    = filaEncontrada[colApp]   ? filaEncontrada[colApp].toString().trim()   : "";
-    const valResp   = filaEncontrada[colResp]  ? filaEncontrada[colResp].toString().trim().toUpperCase() : "";
-
-    // Lote Nro = 2 primeros dígitos de Grupoprimario
-    const loteNro = valGrupo.length >= 2 ? valGrupo.substring(0,2) : valGrupo;
-
-    // Funciones para formatear cada línea con <strong>
-    function linea(label, valor) {
-      return `<strong>${label}:</strong> ${valor}<br>`;
-    }
-    function lineaExtra(texto) {
-      // Para mensajes adicionales
-      return `${texto}<br>`;
-    }
-
-    // Construimos la respuesta
-    let respuestaHTML = "";
-
-    // Muestra datos básicos (Documento, Nombre, Email, Lote)
-    function datosBasicos(doc, nom, mail, lote) {
-      let txt = "";
-      txt += linea("Documento", doc);
-      txt += linea("Nombre y apellido", nom);
-      if (mail === "") {
-        txt += lineaExtra("No tienes email registrado.");
-      } else {
-        txt += linea("Email", mail);
+      // Extraer el número de documento de la consulta (uno o más dígitos)
+      const regexDoc = /(\d+)/;
+      const match = consulta.match(regexDoc);
+      if (!match) {
+        respuesta.innerText = "Solo estoy entrenado para contestar si colocas un número de documento.";
+        return;
       }
-      txt += linea("Lote Nro.", lote);
-      txt += "<br>";
-      return txt;
-    }
+      const numeroDocumento = match[0];
 
-    // -- CASO 1: Resp en blanco => Dependiente
-    if (valResp === "") {
-      respuestaHTML += datosBasicos(valDoc, valNom, valEmail, loteNro);
+      // Identificar columnas en la primera fila
+      const headers = datosExcel[0].map(h => (h || '').toString().trim().toLowerCase());
+      const colDoc   = headers.indexOf("documento");
+      const colNom   = headers.indexOf("nombre y apellido");
+      const colEmail = headers.indexOf("email");
+      const colGrupo = headers.indexOf("grupoprimario");
+      const colApp   = headers.indexOf("app");
+      const colResp  = headers.indexOf("resp");
 
-      // Buscar Líder de grupo => mismo "Grupoprimario", "Resp" = "SI"
-      let liderNombre = "";
+      if ([colDoc, colNom, colEmail, colGrupo, colApp, colResp].includes(-1)) {
+        respuesta.innerText = "El archivo Excel no contiene las columnas requeridas (Documento, Nombre y apellido, Email, Grupoprimario, App, Resp).";
+        return;
+      }
+
+      // Buscar la fila con el documento
+      let filaEncontrada = null;
       for (let i = 1; i < datosExcel.length; i++) {
-        const f = datosExcel[i];
-        if (!f[colGrupo] || !f[colResp]) continue;
-        const gp = f[colGrupo].toString().trim();
-        const rp = f[colResp].toString().trim().toUpperCase();
-        if (gp === valGrupo && rp === "SI") {
-          liderNombre = f[colNom] ? f[colNom].toString().trim() : "";
+        const fila = datosExcel[i];
+        if (!fila[colDoc]) continue;
+        const valorDoc = fila[colDoc].toString().trim();
+        if (valorDoc === numeroDocumento) {
+          filaEncontrada = fila;
           break;
         }
       }
 
-      if (liderNombre) {
-        respuestaHTML += lineaExtra(`Tu líder de grupo es: ${liderNombre}.`);
-      } else {
-        respuestaHTML += lineaExtra("No se encontró un líder de grupo para tu lote.");
+      // Si no se encontró, avisar
+      if (!filaEncontrada) {
+        respuesta.innerText = "El documento no existe en la base de datos de El Centauro.";
+        return;
       }
 
-      if (valApp.toLowerCase() === "no") {
-        respuestaHTML += lineaExtra("Nunca ha entrado aún a la app de Open Key.");
+      // Extraer valores de la fila
+      const valDoc    = filaEncontrada[colDoc]   ? filaEncontrada[colDoc].toString().trim()   : "";
+      const valNom    = filaEncontrada[colNom]   ? filaEncontrada[colNom].toString().trim()   : "";
+      const valEmail  = filaEncontrada[colEmail] ? filaEncontrada[colEmail].toString().trim() : "";
+      const valGrupo  = filaEncontrada[colGrupo] ? filaEncontrada[colGrupo].toString().trim() : "";
+      const valApp    = filaEncontrada[colApp]   ? filaEncontrada[colApp].toString().trim()   : "";
+      const valResp   = filaEncontrada[colResp]  ? filaEncontrada[colResp].toString().trim().toUpperCase() : "";
+
+      // Lote Nro = 2 primeros dígitos de Grupoprimario
+      const loteNro = valGrupo.length >= 2 ? valGrupo.substring(0,2) : valGrupo;
+
+      // Funciones para formatear cada línea con <strong>
+      function linea(label, valor) {
+        return `<strong>${label}:</strong> ${valor}<br>`;
+      }
+      function lineaExtra(texto) {
+        // Para mensajes adicionales
+        return `${texto}<br>`;
       }
 
-    // -- CASO 2: Resp = "SI" => Líder
-    } else if (valResp === "SI") {
-      // Muestra cartel parpadeante “Sos Líder de Grupo”
-      respuestaHTML += `<div class="blink">Sos Líder de Grupo</div><br>`;
+      // Construimos la respuesta final
+      let respuestaHTML = "";
 
-      respuestaHTML += datosBasicos(valDoc, valNom, valEmail, loteNro);
+      // Muestra datos básicos (Documento, Nombre, Email, Lote)
+      function datosBasicos(doc, nom, mail, lote) {
+        let txt = "";
+        txt += linea("Documento", doc);
+        txt += linea("Nombre y apellido", nom);
+        if (mail === "") {
+          txt += lineaExtra("No tienes email registrado.");
+        } else {
+          txt += linea("Email", mail);
+        }
+        txt += linea("Lote Nro.", lote);
+        txt += "<br>";
+        return txt;
+      }
 
-      // Mensaje especial
-      respuestaHTML += lineaExtra(
-        "Vos como Líder de grupo podes entrar a la aplicación de Open Key en la sección Censo - Mi Grupo Familiar " +
-        "y buscando por número de documento de tus dependientes podrás modificar los siguientes datos:"
-      );
-      respuestaHTML += lineaExtra("• Nombre y apellido (si está mal cargado).");
-      respuestaHTML += lineaExtra("• Email (si no es correcto; este será el usuario para registrarse en la aplicación Open Key).");
-      respuestaHTML += lineaExtra("• Teléfono (si está incorrecto o en blanco).");
-      respuestaHTML += lineaExtra("• Relación de parentesco (si está incorrecta o en blanco).");
-      respuestaHTML += lineaExtra(
-        "Nota: El email es el usuario para entrar a Open Key, " +
-        "por lo tanto, asegúrate de que todos los dependientes tengan un email único."
-      );
-      respuestaHTML += "<br>";
+      // -- CASO 1: Resp en blanco => Dependiente
+      if (valResp === "") {
+        // Fondo verde claro
+        document.body.classList.add('bg-dependent');
 
-      // Listar dependientes => misma "Grupoprimario", "Resp" en blanco
-      let dependientes = "";
-      for (let i = 1; i < datosExcel.length; i++) {
-        const f = datosExcel[i];
-        const gp = f[colGrupo] ? f[colGrupo].toString().trim() : "";
-        const rp = f[colResp]  ? f[colResp].toString().trim().toUpperCase() : "";
-        if (gp === valGrupo && rp === "") {
-          // Extraer info dependiente
-          const dDoc   = f[colDoc]   ? f[colDoc].toString().trim() : "";
-          const dNom   = f[colNom]   ? f[colNom].toString().trim() : "";
-          const dEmail = f[colEmail] ? f[colEmail].toString().trim() : "";
-          const dApp   = f[colApp]   ? f[colApp].toString().trim() : "";
-          const dLote  = gp.length >= 2 ? gp.substring(0,2) : gp;
+        respuestaHTML += datosBasicos(valDoc, valNom, valEmail, loteNro);
 
-          dependientes += linea("Documento", dDoc);
-          dependientes += linea("Nombre y apellido", dNom);
-          if (dEmail === "") {
-            dependientes += lineaExtra("No tienes email registrado.");
-          } else {
-            dependientes += linea("Email", dEmail);
+        // Buscar Líder de grupo => mismo "Grupoprimario", "Resp" = "SI"
+        let liderNombre = "";
+        for (let i = 1; i < datosExcel.length; i++) {
+          const f = datosExcel[i];
+          if (!f[colGrupo] || !f[colResp]) continue;
+          const gp = f[colGrupo].toString().trim();
+          const rp = f[colResp].toString().trim().toUpperCase();
+          if (gp === valGrupo && rp === "SI") {
+            liderNombre = f[colNom] ? f[colNom].toString().trim() : "";
+            break;
           }
-          dependientes += linea("Lote Nro.", dLote);
+        }
+        if (liderNombre) {
+          respuestaHTML += lineaExtra(`Tu líder de grupo es: ${liderNombre}.`);
+        } else {
+          respuestaHTML += lineaExtra("No se encontró un líder de grupo para tu lote.");
+        }
+        if (valApp.toLowerCase() === "no") {
+          respuestaHTML += lineaExtra("Nunca ha entrado aún a la app de Open Key.");
+        }
 
-          if (dApp.toLowerCase() === "no") {
-            dependientes += lineaExtra("Nunca ha entrado aún a la app de Open Key.");
+      // -- CASO 2: Resp = "SI" => Líder
+      } else if (valResp === "SI") {
+        // Fondo celeste claro
+        document.body.classList.add('bg-leader');
+
+        // Muestra cartel parpadeante “Sos Líder de Grupo”
+        respuestaHTML += `<div class="blink">Sos Líder de Grupo</div><br>`;
+
+        respuestaHTML += datosBasicos(valDoc, valNom, valEmail, loteNro);
+
+        // Mensaje especial para líderes
+        respuestaHTML += lineaExtra(
+          "Vos como Líder de grupo podes entrar a la aplicación de Open Key en la sección Censo - Mi Grupo Familiar " +
+          "y buscando por número de documento de tus dependientes podrás modificar los siguientes datos:"
+        );
+        respuestaHTML += lineaExtra("• Nombre y apellido (si está mal cargado).");
+        respuestaHTML += lineaExtra("• Email (si no es correcto; este será el usuario para registrarse en la aplicación Open Key).");
+        respuestaHTML += lineaExtra("• Teléfono (si está incorrecto o en blanco).");
+        respuestaHTML += lineaExtra("• Relación de parentesco (si está incorrecta o en blanco).");
+        respuestaHTML += lineaExtra(
+          "Nota: El email es el usuario para entrar a Open Key, " +
+          "por lo tanto, asegúrate de que todos los dependientes tengan un email único."
+        );
+        respuestaHTML += "<br>";
+
+        // Listar dependientes => misma "Grupoprimario", "Resp" en blanco
+        let dependientes = "";
+        for (let i = 1; i < datosExcel.length; i++) {
+          const f = datosExcel[i];
+          const gp = f[colGrupo] ? f[colGrupo].toString().trim() : "";
+          const rp = f[colResp]  ? f[colResp].toString().trim().toUpperCase() : "";
+          if (gp === valGrupo && rp === "") {
+            // Extraer info dependiente
+            const dDoc   = f[colDoc]   ? f[colDoc].toString().trim() : "";
+            const dNom   = f[colNom]   ? f[colNom].toString().trim() : "";
+            const dEmail = f[colEmail] ? f[colEmail].toString().trim() : "";
+            const dApp   = f[colApp]   ? f[colApp].toString().trim() : "";
+            const dLote  = gp.length >= 2 ? gp.substring(0,2) : gp;
+
+            dependientes += linea("Documento", dDoc);
+            dependientes += linea("Nombre y apellido", dNom);
+            if (dEmail === "") {
+              dependientes += lineaExtra("No tienes email registrado.");
+            } else {
+              dependientes += linea("Email", dEmail);
+            }
+            dependientes += linea("Lote Nro.", dLote);
+
+            if (dApp.toLowerCase() === "no") {
+              dependientes += lineaExtra("Nunca ha entrado aún a la app de Open Key.");
+            }
+            dependientes += "<br>";
           }
-          dependientes += "<br>";
+        }
+        if (dependientes) {
+          respuestaHTML += lineaExtra("Personas dependientes:");
+          respuestaHTML += dependientes;
         }
       }
 
-      if (dependientes) {
-        respuestaHTML += lineaExtra("Personas dependientes:");
-        respuestaHTML += dependientes;
-      }
-    }
+      // Mostrar la respuesta final en formato HTML
+      respuesta.innerHTML = respuestaHTML;
+    });
 
-    // Mostrar la respuesta final en formato HTML
-    respuesta.innerHTML = respuestaHTML;
-  });
-</script>
-
+    // Botón para modo oscuro
+    document.getElementById('toggleDarkMode').addEventListener('click', function() {
+      document.body.classList.toggle('dark-mode');
+    });
+  </script>
 </body>
 </html>
