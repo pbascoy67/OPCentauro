@@ -31,6 +31,7 @@
       padding: 20px;
       color: #333;
       transition: background-color 0.3s ease, color 0.3s ease;
+      position: relative; /* Permite posicionar elementos fijos dentro */
     }
 
     /* Clases para cambiar fondo según tipo de usuario */
@@ -43,24 +44,23 @@
       background-image: none !important;
     }
 
-    /* ------------------ MODO OSCURO ------------------ */
+    /* ================== MODO OSCURO ================== */
     .dark-mode {
       background-color: #121212 !important; /* Fondo oscuro */
       background-image: none !important;
       color: #f1f1f1;
     }
 
+    /* En modo oscuro, ajustamos estilos de contenedores, textos, bordes */
     .dark-mode .container {
       background-color: #1f1f1f;
       color: #fff;
     }
-
     .dark-mode input[type="text"] {
       background-color: #2c2c2c;
       color: #fff;
       border: 1px solid #444;
     }
-
     .dark-mode button {
       background-color: #444;
       color: #fff;
@@ -68,10 +68,17 @@
     .dark-mode button:hover {
       background-color: #666;
     }
-
     .dark-mode .output {
       background-color: #2c2c2c;
       border: 1px solid #444;
+    }
+    .dark-mode .dependent-box {
+      background-color: #2c2c2c;
+      border-color: #444;
+    }
+    .dark-mode .leader-box {
+      background-color: #2c2c2c;
+      border-color: #444;
     }
 
     /* Si coincide dark-mode con leader/dependent, prioriza el modo oscuro */
@@ -89,7 +96,7 @@
       margin-bottom: 20px;
     }
     .header img {
-      width: 120px; /* Ajustar tamaño del logo */
+      width: 156px; /* 30% más grande que 120px */
       height: auto;
       margin-bottom: 10px;
     }
@@ -135,8 +142,6 @@
 
     /* ================== BOTONES ================== */
     .btn-row {
-      display: flex;
-      gap: 10px;
       margin-top: 10px;
     }
     button {
@@ -154,12 +159,18 @@
       background-color: #09406e;
     }
 
-    /* Botón con un ícono (modo oscuro) */
+    /* ================== BOTÓN MODO OSCURO (parte inferior derecha) ================== */
     #toggleDarkMode {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      font-size: 1.2rem;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.2rem;
     }
 
     /* ================== ÁREA DE RESPUESTA ================== */
@@ -189,16 +200,33 @@
       }
     }
 
+    /* ================== RECUADROS PARA DATOS ================== */
+    .dependent-box {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+    }
+    .leader-box {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      background-color: #fafafa;
+    }
+
     /* ================== RESPONSIVE ================== */
     @media (max-width: 600px) {
       .container {
         padding: 15px;
       }
-      .btn-row {
-        flex-direction: column;
-      }
       button {
         width: 100%;
+      }
+      #toggleDarkMode {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
       }
     }
   </style>
@@ -206,7 +234,8 @@
 <body>
   <!-- Encabezado con Logo y Título -->
   <div class="header">
-    <img src="./ElCentauro.png" alt="Logo de El Centauro">
+    <!-- Ajusta la ruta de la imagen según tu repositorio -->
+    <img src="./ElCentauro.jpg" alt="Logo de El Centauro">
     <h1>Datos Actuales Open Key Residentes Barrio El Centauro</h1>
   </div>
 
@@ -215,17 +244,17 @@
     <div class="section">
       <label for="consulta">Coloca un número de documento:</label>
       <input type="text" id="consulta" placeholder="Coloca un número de documento">
-
-      <!-- Botones: consultar y modo oscuro -->
       <div class="btn-row">
         <button id="btnConsultar">Consultar</button>
-        <button id="toggleDarkMode">🌙</button>
       </div>
     </div>
 
     <!-- Área donde se muestran las respuestas -->
     <div class="output" id="respuesta"></div>
   </div>
+
+  <!-- Botón fijo para Modo Oscuro en la parte inferior derecha -->
+  <button id="toggleDarkMode" title="Modo oscuro">🌙</button>
 
   <script>
     /*
@@ -245,20 +274,20 @@
          - Si no está: "El documento no existe en la base de datos de El Centauro."
       3. Si "Resp" en blanco => Dependiente
          - Mostrar: Documento, Nombre y Apellido, Email (o "No tienes email registrado."), Lote Nro. (2 dígitos de Grupoprimario)
-         - Mostrar líder de grupo (Resp = "SI" con mismo Grupoprimario)
+         - Mostrar líder de grupo (en un recuadro) => mismo "Grupoprimario", "Resp" = "SI"
          - Si "App"="No", agregar "Nunca ha entrado aún a la app de Open Key."
-         - (FONDO Verde claro)
+         - Fondo Verde claro
       4. Si "Resp"="SI" => Líder
-         - Muestra los mismos datos + texto "Vos como Líder de grupo ..."
-         - Listar dependientes (mismo Grupoprimario, Resp en blanco).
-           - Para cada uno, mostrar su info + "Nunca ha entrado ..." si "App"="No"
-         - Mostrar cartel parpadeante: "Sos Líder de Grupo"
-         - (FONDO Celeste claro)
+         - Fondo Celeste claro
+         - Muestra "Sos Líder de Grupo" (parpadeante)
+         - Muestra sus datos
+         - Muestra dependientes (mismo "Grupoprimario", Resp en blanco) en recuadros (cada uno con sus datos)
+         - Agrega contador de dependientes
       ---------------------------------------------------------------------------------------
     */
 
     let datosExcel = []; // Se almacenan los datos del Excel
-    const excelUrl = './data.xlsx'; // Ajustar a la ruta real en tu repositorio
+    const excelUrl = './data.xlsx'; // Ajusta a la ruta real en tu repositorio
 
     // Al cargar la página, leemos el Excel en segundo plano
     window.addEventListener('DOMContentLoaded', () => {
@@ -361,7 +390,6 @@
         return `<strong>${label}:</strong> ${valor}<br>`;
       }
       function lineaExtra(texto) {
-        // Para mensajes adicionales
         return `${texto}<br>`;
       }
 
@@ -392,18 +420,25 @@
 
         // Buscar Líder de grupo => mismo "Grupoprimario", "Resp" = "SI"
         let liderNombre = "";
+        let liderEncontrado = null;
         for (let i = 1; i < datosExcel.length; i++) {
           const f = datosExcel[i];
           if (!f[colGrupo] || !f[colResp]) continue;
           const gp = f[colGrupo].toString().trim();
           const rp = f[colResp].toString().trim().toUpperCase();
           if (gp === valGrupo && rp === "SI") {
-            liderNombre = f[colNom] ? f[colNom].toString().trim() : "";
+            liderEncontrado = f;
+            liderNombre = liderEncontrado[colNom] ? liderEncontrado[colNom].toString().trim() : "";
             break;
           }
         }
         if (liderNombre) {
-          respuestaHTML += lineaExtra(`Tu líder de grupo es: ${liderNombre}.`);
+          // Recuadro para mostrar al líder
+          respuestaHTML += `
+            <div class="leader-box">
+              <strong>Líder de grupo:</strong> ${liderNombre}
+            </div>
+          `;
         } else {
           respuestaHTML += lineaExtra("No se encontró un líder de grupo para tu lote.");
         }
@@ -419,6 +454,7 @@
         // Muestra cartel parpadeante “Sos Líder de Grupo”
         respuestaHTML += `<div class="blink">Sos Líder de Grupo</div><br>`;
 
+        // Datos del líder
         respuestaHTML += datosBasicos(valDoc, valNom, valEmail, loteNro);
 
         // Mensaje especial para líderes
@@ -437,12 +473,14 @@
         respuestaHTML += "<br>";
 
         // Listar dependientes => misma "Grupoprimario", "Resp" en blanco
-        let dependientes = "";
+        let dependientesHTML = "";
+        let contadorDependientes = 0;
         for (let i = 1; i < datosExcel.length; i++) {
           const f = datosExcel[i];
           const gp = f[colGrupo] ? f[colGrupo].toString().trim() : "";
           const rp = f[colResp]  ? f[colResp].toString().trim().toUpperCase() : "";
           if (gp === valGrupo && rp === "") {
+            contadorDependientes++;
             // Extraer info dependiente
             const dDoc   = f[colDoc]   ? f[colDoc].toString().trim() : "";
             const dNom   = f[colNom]   ? f[colNom].toString().trim() : "";
@@ -450,24 +488,31 @@
             const dApp   = f[colApp]   ? f[colApp].toString().trim() : "";
             const dLote  = gp.length >= 2 ? gp.substring(0,2) : gp;
 
-            dependientes += linea("Documento", dDoc);
-            dependientes += linea("Nombre y apellido", dNom);
+            // Recuadro para cada dependiente
+            let dependienteBox = `<div class="dependent-box">`;
+            dependienteBox += linea("Documento", dDoc);
+            dependienteBox += linea("Nombre y apellido", dNom);
             if (dEmail === "") {
-              dependientes += lineaExtra("No tienes email registrado.");
+              dependienteBox += lineaExtra("No tienes email registrado.");
             } else {
-              dependientes += linea("Email", dEmail);
+              dependienteBox += linea("Email", dEmail);
             }
-            dependientes += linea("Lote Nro.", dLote);
+            dependienteBox += linea("Lote Nro.", dLote);
 
             if (dApp.toLowerCase() === "no") {
-              dependientes += lineaExtra("Nunca ha entrado aún a la app de Open Key.");
+              dependienteBox += lineaExtra("Nunca ha entrado aún a la app de Open Key.");
             }
-            dependientes += "<br>";
+            dependienteBox += "</div>";
+
+            dependientesHTML += dependienteBox;
           }
         }
-        if (dependientes) {
-          respuestaHTML += lineaExtra("Personas dependientes:");
-          respuestaHTML += dependientes;
+
+        if (contadorDependientes > 0) {
+          respuestaHTML += lineaExtra(`Cantidad de dependientes: ${contadorDependientes}`);
+          respuestaHTML += dependientesHTML;
+        } else {
+          respuestaHTML += lineaExtra("No tienes dependientes registrados en tu grupo.");
         }
       }
 
@@ -475,7 +520,7 @@
       respuesta.innerHTML = respuestaHTML;
     });
 
-    // Botón para modo oscuro
+    // Botón para modo oscuro (fijo abajo a la derecha)
     document.getElementById('toggleDarkMode').addEventListener('click', function() {
       document.body.classList.toggle('dark-mode');
     });
