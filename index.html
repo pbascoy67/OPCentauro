@@ -31,7 +31,7 @@
       padding: 20px;
       color: #333;
       transition: background-color 0.3s ease, color 0.3s ease;
-      position: relative; /* Permite posicionar elementos fijos dentro */
+      position: relative; /* Permite posicionar elementos fijos dentro, como el botón y el menú */
     }
 
     /* Clases para cambiar fondo según tipo de usuario */
@@ -50,8 +50,6 @@
       background-image: none !important;
       color: #f1f1f1;
     }
-
-    /* En modo oscuro, ajustamos estilos de contenedores, textos, bordes */
     .dark-mode .container {
       background-color: #1f1f1f;
       color: #fff;
@@ -72,15 +70,11 @@
       background-color: #2c2c2c;
       border: 1px solid #444;
     }
-    .dark-mode .dependent-box {
+    .dark-mode .side-menu {
       background-color: #2c2c2c;
       border-color: #444;
+      color: #fff;
     }
-    .dark-mode .leader-box {
-      background-color: #2c2c2c;
-      border-color: #444;
-    }
-
     /* Si coincide dark-mode con leader/dependent, prioriza el modo oscuro */
     .dark-mode.bg-leader,
     .dark-mode.bg-dependent {
@@ -95,10 +89,12 @@
       align-items: center;
       margin-bottom: 20px;
     }
+    /* Mostrar la imagen en su tamaño natural, ajustando si fuera muy grande */
     .header img {
-      width: 156px; /* 30% más grande que 120px */
+      max-width: 100%; 
       height: auto;
       margin-bottom: 10px;
+      /* Se quita cualquier width fijo para que respete su tamaño original */
     }
     .header h1 {
       color: #fff;
@@ -171,6 +167,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      z-index: 9999; /* para que esté encima del menú */
     }
 
     /* ================== ÁREA DE RESPUESTA ================== */
@@ -193,6 +190,7 @@
       animation: blink 1s infinite;
       margin-bottom: 10px;
       display: inline-block;
+      font-size: 1.15rem; /* 15% más grande de lo normal */
     }
     @keyframes blink {
       50% {
@@ -200,19 +198,34 @@
       }
     }
 
-    /* ================== RECUADROS PARA DATOS ================== */
+    /* ================== RECUADROS PARA DATOS DE DEPENDIENTES ================== */
     .dependent-box {
       border: 1px solid #ccc;
       padding: 10px;
       margin-bottom: 10px;
       border-radius: 4px;
     }
-    .leader-box {
+
+    /* ================== MENÚ LATERAL PARA LÍDER ================== */
+    .side-menu {
+      position: fixed;
+      top: 150px; /* Ajusta para que quede a la altura que desees */
+      left: 20px;
+      width: 200px;
+      background-color: #f0f0f0;
       border: 1px solid #ccc;
-      padding: 10px;
-      margin: 10px 0;
       border-radius: 4px;
-      background-color: #fafafa;
+      padding: 10px;
+      display: none; /* Por defecto oculto, se mostrará cuando sea líder */
+      z-index: 999; 
+    }
+    .side-menu ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+    .side-menu li {
+      margin-bottom: 8px;
     }
 
     /* ================== RESPONSIVE ================== */
@@ -228,15 +241,31 @@
         height: 40px;
         font-size: 1rem;
       }
+      .side-menu {
+        top: auto;
+        bottom: 80px; /* Para que no se sobreponga con el botón en pantallas pequeñas */
+        left: 10px;
+        width: 180px;
+      }
     }
   </style>
 </head>
 <body>
   <!-- Encabezado con Logo y Título -->
   <div class="header">
-    <!-- Ajusta la ruta de la imagen según tu repositorio -->
-    <img src="./ElCentauro.jpg" alt="Logo de El Centauro">
+    <!-- Ajusta la ruta de la imagen según tu repositorio; el archivo se llama "Centauro3.jpg" -->
+    <img src="./Centauro3.jpg" alt="Logo de El Centauro">
     <h1>Datos Actuales Open Key Residentes Barrio El Centauro</h1>
+  </div>
+
+  <!-- Menú lateral para Líder de Grupo (invisible por defecto) -->
+  <div class="side-menu" id="sideMenu">
+    <ul>
+      <li>1. Preguntas frecuentes</li>
+      <li>2. Como bajar la app de Open key</li>
+      <li>3. Como sacarme la selfie</li>
+      <li>4. Como modificar los datos de mi grupo familiar</li>
+    </ul>
   </div>
 
   <div class="container">
@@ -274,15 +303,15 @@
          - Si no está: "El documento no existe en la base de datos de El Centauro."
       3. Si "Resp" en blanco => Dependiente
          - Mostrar: Documento, Nombre y Apellido, Email (o "No tienes email registrado."), Lote Nro. (2 dígitos de Grupoprimario)
-         - Mostrar líder de grupo (en un recuadro) => mismo "Grupoprimario", "Resp" = "SI"
+         - Mostrar líder de grupo (Resp = "SI") en un recuadro
          - Si "App"="No", agregar "Nunca ha entrado aún a la app de Open Key."
          - Fondo Verde claro
       4. Si "Resp"="SI" => Líder
          - Fondo Celeste claro
          - Muestra "Sos Líder de Grupo" (parpadeante)
          - Muestra sus datos
-         - Muestra dependientes (mismo "Grupoprimario", Resp en blanco) en recuadros (cada uno con sus datos)
-         - Agrega contador de dependientes
+         - Muestra dependientes en recuadros + contador de dependientes
+         - Despliega el menú lateral (sideMenu)
       ---------------------------------------------------------------------------------------
     */
 
@@ -320,11 +349,13 @@
     document.getElementById('btnConsultar').addEventListener('click', function() {
       const consulta = document.getElementById('consulta').value.trim();
       const respuesta = document.getElementById('respuesta');
+      const sideMenu = document.getElementById('sideMenu');
 
-      // Limpiar la respuesta previa
+      // Limpiar la respuesta previa y ocultar el menú
       respuesta.innerHTML = "";
+      sideMenu.style.display = 'none';
 
-      // Quitamos clases anteriores de fondo que indiquen líder/dependiente
+      // Quitamos clases anteriores de fondo (líder/dependiente)
       document.body.classList.remove('bg-leader', 'bg-dependent');
 
       // Verificar si hay datos cargados
@@ -411,7 +442,7 @@
         return txt;
       }
 
-      // -- CASO 1: Resp en blanco => Dependiente
+      // CASO 1: Resp en blanco => Dependiente
       if (valResp === "") {
         // Fondo verde claro
         document.body.classList.add('bg-dependent');
@@ -420,22 +451,20 @@
 
         // Buscar Líder de grupo => mismo "Grupoprimario", "Resp" = "SI"
         let liderNombre = "";
-        let liderEncontrado = null;
         for (let i = 1; i < datosExcel.length; i++) {
           const f = datosExcel[i];
           if (!f[colGrupo] || !f[colResp]) continue;
           const gp = f[colGrupo].toString().trim();
           const rp = f[colResp].toString().trim().toUpperCase();
           if (gp === valGrupo && rp === "SI") {
-            liderEncontrado = f;
-            liderNombre = liderEncontrado[colNom] ? liderEncontrado[colNom].toString().trim() : "";
+            liderNombre = f[colNom] ? f[colNom].toString().trim() : "";
             break;
           }
         }
         if (liderNombre) {
           // Recuadro para mostrar al líder
           respuestaHTML += `
-            <div class="leader-box">
+            <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px; border-radius:4px; background-color:#fafafa;">
               <strong>Líder de grupo:</strong> ${liderNombre}
             </div>
           `;
@@ -446,12 +475,15 @@
           respuestaHTML += lineaExtra("Nunca ha entrado aún a la app de Open Key.");
         }
 
-      // -- CASO 2: Resp = "SI" => Líder
+      // CASO 2: Resp = "SI" => Líder
       } else if (valResp === "SI") {
         // Fondo celeste claro
         document.body.classList.add('bg-leader');
 
-        // Muestra cartel parpadeante “Sos Líder de Grupo”
+        // Mostramos el menú lateral
+        sideMenu.style.display = 'block';
+
+        // Muestra cartel parpadeante “Sos Líder de Grupo” (15% más grande)
         respuestaHTML += `<div class="blink">Sos Líder de Grupo</div><br>`;
 
         // Datos del líder
