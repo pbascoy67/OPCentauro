@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 
-  <!-- Librería para leer Excel -->
+  <!-- Librería para leer Excel (XLSX) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <style>
@@ -32,6 +32,13 @@
       color: #333;
       transition: background-color 0.3s ease, color 0.3s ease;
       position: relative; /* Permite posicionar elementos fijos dentro, como el botón y el menú */
+    }
+
+    /* Contenedor para alinear .header y .container al mismo ancho */
+    .wrapper {
+      max-width: 700px; /* Ajusta el ancho máximo según desees */
+      width: 100%;
+      margin: 0 auto;
     }
 
     /* Clases para cambiar fondo según tipo de usuario */
@@ -70,11 +77,23 @@
       background-color: #2c2c2c;
       border: 1px solid #444;
     }
+
+    /* Ajustes específicos para el menú acordeón en modo oscuro */
     .dark-mode .side-menu {
-      background-color: #2c2c2c;
-      border-color: #444;
-      color: #fff;
+      background-color: #333 !important;
+      color: #fff !important;
+      border: 1px solid #666 !important;
     }
+    .dark-mode .accordion-header {
+      background-color: #444 !important;
+      color: #fff !important;
+    }
+    .dark-mode .accordion-content {
+      background-color: #555 !important;
+      color: #fff !important;
+      border-color: #666 !important;
+    }
+
     /* Si coincide dark-mode con leader/dependent, prioriza el modo oscuro */
     .dark-mode.bg-leader,
     .dark-mode.bg-dependent {
@@ -89,11 +108,10 @@
       align-items: center;
       margin-bottom: 20px;
     }
-    /* Se quita la regla que forzaba el tamaño, para que el logo salga con su tamaño original */
+    /* Dejar el logo con su tamaño original (si la imagen es demasiado grande, podrías usar max-width: 100% opcionalmente) */
     .header img {
       height: auto;
       margin-bottom: 10px;
-      /* Si necesitas ajustar el tamaño, podrías usar width:auto, o max-width: 100% de manera opcional. */
     }
     .header h1 {
       color: #fff;
@@ -105,7 +123,6 @@
     /* ================== CONTENEDOR PRINCIPAL ================== */
     .container {
       background-color: #fff;
-      max-width: 700px;
       width: 100%;
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.2);
@@ -138,6 +155,8 @@
     /* ================== BOTONES ================== */
     .btn-row {
       margin-top: 10px;
+      display: flex;
+      gap: 10px; /* Separación entre botones */
     }
     button {
       padding: 10px 20px;
@@ -209,15 +228,18 @@
     /* ================== MENÚ LATERAL (ACORDEÓN) PARA LÍDER ================== */
     .side-menu {
       position: fixed;
-      top: 150px; /* Ajusta la posición vertical según tu preferencia */
+      top: 150px; /* Ajustar según tu preferencia */
       left: 20px;
       width: 240px;
-      background-color: #f0f0f0;
+      background-color: #0E5CAD; /* Fondo azul */
+      color: #fff;              /* Texto blanco */
       border: 1px solid #ccc;
       border-radius: 4px;
       padding: 15px;
       display: none; /* Oculto por defecto, se mostrará cuando sea líder */
       z-index: 999; 
+      max-height: 60vh; /* Para poder hacer scroll si es muy alto */
+      overflow-y: auto;
     }
 
     .side-menu h2 {
@@ -232,7 +254,8 @@
     .accordion-header {
       width: 100%;
       text-align: left;
-      background-color: #e3e3e3;
+      background-color: #09406e; /* Un azul un poco más oscuro para cada encabezado */
+      color: #fff;
       border: none;
       border-radius: 4px;
       padding: 10px;
@@ -243,8 +266,9 @@
     .accordion-content {
       display: none; /* Oculto por defecto */
       padding: 8px;
-      background-color: #fff;
-      border: 1px solid #ccc;
+      background-color: #0E5CAD; /* Misma tonalidad del menú */
+      color: #fff;
+      border: 1px solid #fff;
       border-top: none;
       border-radius: 0 0 4px 4px;
       font-size: 0.9rem;
@@ -253,11 +277,11 @@
 
     /* ================== RESPONSIVE ================== */
     @media (max-width: 600px) {
-      .container {
-        padding: 15px;
+      .wrapper {
+        padding: 0 10px;
       }
       button {
-        width: 100%;
+        width: auto;
       }
       #toggleDarkMode {
         width: 40px;
@@ -274,11 +298,29 @@
   </style>
 </head>
 <body>
-  <!-- Encabezado con Logo y Título -->
-  <div class="header">
-    <!-- Logo con su tamaño original -->
-    <img src="./Centauro3.jpg" alt="Logo de El Centauro">
-    <h1>Datos Actuales Open Key Residentes Barrio El Centauro</h1>
+  <div class="wrapper">
+    <!-- Encabezado con Logo y Título -->
+    <div class="header">
+      <!-- Logo con su tamaño original -->
+      <img src="./Centauro3.jpg" alt="Logo de El Centauro">
+      <h1>Datos Actuales Open Key Residentes Barrio El Centauro</h1>
+    </div>
+
+    <!-- Contenedor principal -->
+    <div class="container">
+      <!-- Sección de consulta por número de documento -->
+      <div class="section">
+        <label for="consulta">Coloca un número de documento:</label>
+        <input type="text" id="consulta" placeholder="Coloca un número de documento">
+        <div class="btn-row">
+          <button id="btnConsultar">Consultar</button>
+          <button id="btnBorrar">Borrar documento</button>
+        </div>
+      </div>
+
+      <!-- Área donde se muestran las respuestas -->
+      <div class="output" id="respuesta"></div>
+    </div>
   </div>
 
   <!-- Menú lateral (acordeón) para Líder de Grupo (invisible por defecto) -->
@@ -326,20 +368,6 @@
     </div>
   </div>
 
-  <div class="container">
-    <!-- Sección de consulta por número de documento -->
-    <div class="section">
-      <label for="consulta">Coloca un número de documento:</label>
-      <input type="text" id="consulta" placeholder="Coloca un número de documento">
-      <div class="btn-row">
-        <button id="btnConsultar">Consultar</button>
-      </div>
-    </div>
-
-    <!-- Área donde se muestran las respuestas -->
-    <div class="output" id="respuesta"></div>
-  </div>
-
   <!-- Botón fijo para Modo Oscuro en la parte inferior derecha -->
   <button id="toggleDarkMode" title="Modo oscuro">🌙</button>
 
@@ -380,6 +408,7 @@
     window.addEventListener('DOMContentLoaded', () => {
       cargarExcelFijo();
       inicializarAcordeon();
+      inicializarBotones();
     });
 
     function cargarExcelFijo() {
@@ -404,8 +433,19 @@
         });
     }
 
-    // Botón de consulta
-    document.getElementById('btnConsultar').addEventListener('click', function() {
+    function inicializarBotones() {
+      // Botón de consulta
+      document.getElementById('btnConsultar').addEventListener('click', function() {
+        realizarConsulta();
+      });
+      // Botón de borrar
+      document.getElementById('btnBorrar').addEventListener('click', function() {
+        document.getElementById('consulta').value = '';
+        document.getElementById('respuesta').innerHTML = '';
+      });
+    }
+
+    function realizarConsulta() {
       const consulta = document.getElementById('consulta').value.trim();
       const respuesta = document.getElementById('respuesta');
       const sideMenu = document.getElementById('sideMenu');
@@ -606,7 +646,7 @@
 
       // Mostrar la respuesta final en formato HTML
       respuesta.innerHTML = respuestaHTML;
-    });
+    }
 
     // Botón para modo oscuro (fijo abajo a la derecha)
     document.getElementById('toggleDarkMode').addEventListener('click', function() {
