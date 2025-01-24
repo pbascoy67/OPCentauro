@@ -75,7 +75,6 @@
       border-color: #444;
       color: #fff;
     }
-    /* Si coincide dark-mode con leader/dependent, prioriza el modo oscuro */
     .dark-mode.bg-leader,
     .dark-mode.bg-dependent {
       background-color: #121212 !important;
@@ -89,12 +88,11 @@
       align-items: center;
       margin-bottom: 20px;
     }
-    /* Mostrar la imagen en su tamaño natural, ajustando si fuera muy grande */
+    /* Se quita la regla que forzaba el tamaño, para que el logo salga con su tamaño original */
     .header img {
-      max-width: 100%; 
       height: auto;
       margin-bottom: 10px;
-      /* Se quita cualquier width fijo para que respete su tamaño original */
+      /* Si necesitas ajustarlo un poco, podrías usar width:auto, o solo quitar max-width:100%. */
     }
     .header h1 {
       color: #fff;
@@ -204,28 +202,52 @@
       padding: 10px;
       margin-bottom: 10px;
       border-radius: 4px;
+      /* El color de fondo ahora se asignará dinámicamente desde JS */
     }
 
-    /* ================== MENÚ LATERAL PARA LÍDER ================== */
+    /* ================== MENÚ LATERAL (ACORDEÓN) PARA LÍDER ================== */
     .side-menu {
       position: fixed;
-      top: 150px; /* Ajusta para que quede a la altura que desees */
+      top: 150px;
       left: 20px;
-      width: 200px;
+      width: 240px;
       background-color: #f0f0f0;
       border: 1px solid #ccc;
       border-radius: 4px;
-      padding: 10px;
-      display: none; /* Por defecto oculto, se mostrará cuando sea líder */
+      padding: 15px;
+      display: none; /* Oculto por defecto */
       z-index: 999; 
     }
-    .side-menu ul {
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
+
+    .side-menu h2 {
+      margin-bottom: 10px;
+      font-size: 1.1rem;
     }
-    .side-menu li {
-      margin-bottom: 8px;
+
+    /* Acordeón */
+    .accordion-item {
+      margin-bottom: 10px;
+    }
+    .accordion-header {
+      width: 100%;
+      text-align: left;
+      background-color: #e3e3e3;
+      border: none;
+      border-radius: 4px;
+      padding: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    .accordion-content {
+      display: none; /* Oculto por defecto */
+      padding: 8px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      font-size: 0.9rem;
+      margin-bottom: 5px;
     }
 
     /* ================== RESPONSIVE ================== */
@@ -253,19 +275,52 @@
 <body>
   <!-- Encabezado con Logo y Título -->
   <div class="header">
-    <!-- Ajusta la ruta de la imagen según tu repositorio; el archivo se llama "Centauro3.jpg" -->
+    <!-- Logo con su tamaño original -->
     <img src="./Centauro3.jpg" alt="Logo de El Centauro">
     <h1>Datos Actuales Open Key Residentes Barrio El Centauro</h1>
   </div>
 
-  <!-- Menú lateral para Líder de Grupo (invisible por defecto) -->
+  <!-- Menú lateral (acordeón) para Líder de Grupo (invisible por defecto) -->
   <div class="side-menu" id="sideMenu">
-    <ul>
-      <li>1. Preguntas frecuentes</li>
-      <li>2. Como bajar la app de Open key</li>
-      <li>3. Como sacarme la selfie</li>
-      <li>4. Como modificar los datos de mi grupo familiar</li>
-    </ul>
+    <h2>Información importante</h2>
+    <div class="accordion">
+      <div class="accordion-item">
+        <button class="accordion-header">1. Preguntas frecuentes</button>
+        <div class="accordion-content">
+          <p>Aquí puedes colocar respuestas a las consultas más habituales.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-header">2. Cómo bajar la app de Open Key</button>
+        <div class="accordion-content">
+          <p>Instrucciones para descargar la aplicación en diferentes dispositivos.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-header">3. Cómo sacarme la selfie</button>
+        <div class="accordion-content">
+          <p>Pequeña guía paso a paso para tomar y subir tu selfie correctamente.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-header">4. Cómo modificar los datos de mi grupo familiar</button>
+        <div class="accordion-content">
+          <p>
+            Vos como Líder de grupo podes entrar a la aplicación de Open Key en la sección
+            <strong>Censo - Mi Grupo Familiar</strong> y, buscando por número de documento de tus
+            dependientes, podrás modificar los siguientes datos:
+          </p>
+          <ul>
+            <li>Nombre y apellido (si está mal cargado).</li>
+            <li>Email (si no es correcto; este será el usuario para registrarse en la aplicación Open Key).</li>
+            <li>Teléfono (si está incorrecto o en blanco).</li>
+            <li>Relación de parentesco (si está incorrecta o en blanco).</li>
+          </ul>
+          <p><strong>Nota:</strong> El email es el usuario para entrar a Open Key, por lo tanto, 
+          aseguráte de que todos los dependientes tengan un email único.</p>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="container">
@@ -310,7 +365,7 @@
          - Fondo Celeste claro
          - Muestra "Sos Líder de Grupo" (parpadeante)
          - Muestra sus datos
-         - Muestra dependientes en recuadros + contador de dependientes
+         - Muestra dependientes en recuadros + contador de dependientes (cada recuadro con fondo pastel único)
          - Despliega el menú lateral (sideMenu)
       ---------------------------------------------------------------------------------------
     */
@@ -321,6 +376,7 @@
     // Al cargar la página, leemos el Excel en segundo plano
     window.addEventListener('DOMContentLoaded', () => {
       cargarExcelFijo();
+      inicializarAcordeon();
     });
 
     function cargarExcelFijo() {
@@ -489,24 +545,17 @@
         // Datos del líder
         respuestaHTML += datosBasicos(valDoc, valNom, valEmail, loteNro);
 
-        // Mensaje especial para líderes
-        respuestaHTML += lineaExtra(
-          "Vos como Líder de grupo podes entrar a la aplicación de Open Key en la sección Censo - Mi Grupo Familiar " +
-          "y buscando por número de documento de tus dependientes podrás modificar los siguientes datos:"
-        );
-        respuestaHTML += lineaExtra("• Nombre y apellido (si está mal cargado).");
-        respuestaHTML += lineaExtra("• Email (si no es correcto; este será el usuario para registrarse en la aplicación Open Key).");
-        respuestaHTML += lineaExtra("• Teléfono (si está incorrecto o en blanco).");
-        respuestaHTML += lineaExtra("• Relación de parentesco (si está incorrecta o en blanco).");
-        respuestaHTML += lineaExtra(
-          "Nota: El email es el usuario para entrar a Open Key, " +
-          "por lo tanto, asegúrate de que todos los dependientes tengan un email único."
-        );
-        respuestaHTML += "<br>";
-
         // Listar dependientes => misma "Grupoprimario", "Resp" en blanco
         let dependientesHTML = "";
         let contadorDependientes = 0;
+
+        // Paleta de colores pastel
+        const pastelColors = [
+          "#FFB3BA","#FFDFBA","#FFFFBA","#BAFFC9","#BAE1FF",
+          "#FFC9DE","#F1C0E8","#E2F0CB","#FDEED9"
+        ];
+        let colorIndex = 0; // Para ir rotando los colores
+
         for (let i = 1; i < datosExcel.length; i++) {
           const f = datosExcel[i];
           const gp = f[colGrupo] ? f[colGrupo].toString().trim() : "";
@@ -520,8 +569,12 @@
             const dApp   = f[colApp]   ? f[colApp].toString().trim() : "";
             const dLote  = gp.length >= 2 ? gp.substring(0,2) : gp;
 
-            // Recuadro para cada dependiente
-            let dependienteBox = `<div class="dependent-box">`;
+            // Color pastel para este dependiente
+            let colorFondo = pastelColors[colorIndex % pastelColors.length];
+            colorIndex++;
+
+            // Recuadro para cada dependiente con color de fondo distinto
+            let dependienteBox = `<div class="dependent-box" style="background-color:${colorFondo};">`;
             dependienteBox += linea("Documento", dDoc);
             dependienteBox += linea("Nombre y apellido", dNom);
             if (dEmail === "") {
@@ -556,6 +609,22 @@
     document.getElementById('toggleDarkMode').addEventListener('click', function() {
       document.body.classList.toggle('dark-mode');
     });
+
+    // Inicializar comportamiento del acordeón
+    function inicializarAcordeon() {
+      const headers = document.querySelectorAll('.accordion-header');
+      headers.forEach(header => {
+        header.addEventListener('click', () => {
+          const content = header.nextElementSibling;
+          // Alternar display
+          if (content.style.display === 'block') {
+            content.style.display = 'none';
+          } else {
+            content.style.display = 'block';
+          }
+        });
+      });
+    }
   </script>
 </body>
 </html>
